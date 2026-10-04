@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Visualisasi Multi-Level Struktur Pengeluaran dan Pemetaan Geospasial Inflasi Daerah di Indonesia</title>
+<script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.35.2/plotly.min.js" onerror="this.onerror=null;var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.35.2/plotly.min.js';document.head.appendChild(s)"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" onerror="this.onerror=null;var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';document.head.appendChild(s)"></script>
+<script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js" onerror="this.onerror=null;var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js';document.head.appendChild(s)"></script>
+<script src="https://cdn.jsdelivr.net/npm/d3-cloud@1.2.7/build/d3.layout.cloud.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f6f7f9;--fg:#1c2330;--card:#fff;--ac:#0072B2;--mu:#5b6575}
+@media(prefers-color-scheme:dark){:root{--bg:#12161d;--fg:#e8ecf2;--card:#1c222c;--mu:#9aa5b5}}
+*{box-sizing:border-box}body{margin:0;font:15px/1.5 'Plus Jakarta Sans',system-ui,sans-serif;background:var(--bg);color:var(--fg)}
+header{padding:36px 16px 40px;background:linear-gradient(135deg,#003f6b,#0072B2 55%,#0a9396);color:#fff;text-align:center}.hw{max-width:960px;margin:auto}.chip{display:inline-block;padding:4px 16px;border-radius:99px;background:#ffffff26;border:1px solid #ffffff59;font-size:12px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;margin-bottom:14px}h1{font-size:clamp(20px,3.6vw,35px);font-weight:800;line-height:1.25;letter-spacing:-.01em;margin:0 0 12px;text-wrap:balance}header p{margin:0;opacity:.92;font-size:14px;font-weight:500}section{scroll-margin-top:64px}
+nav{position:sticky;top:0;z-index:9;background:var(--card);display:flex;justify-content:center;flex-wrap:wrap;gap:6px;padding:8px 10px;border-bottom:1px solid #8884;box-shadow:0 2px 8px #0002}nav a{display:inline-flex;align-items:center;gap:8px;padding:8px 18px;border-radius:99px;color:var(--fg);text-decoration:none;font-weight:700;font-size:14px;white-space:nowrap;transition:.15s}nav a .ic{width:20px;height:20px;flex:none}nav a{background:rgba(0,114,178,.13);border:1px solid rgba(0,114,178,.4)}nav a:hover{background:var(--ac);border-color:var(--ac);color:#fff;transform:translateY(-1px)}
+main{max-width:1280px;margin:auto;padding:12px}section{background:var(--card);border-radius:10px;padding:14px;margin:14px 0}
+h2{margin:0 0 4px}.sub{color:var(--mu);margin:0 0 10px}.ctl{display:flex;flex-wrap:wrap;gap:10px;align-items:end;margin-bottom:8px}
+label{display:flex;flex-direction:column;font-size:12px;color:var(--mu);gap:2px}select,input[type=text]{padding:6px;border-radius:6px;border:1px solid #8886;background:var(--bg);color:var(--fg);max-width:260px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.src{font-size:12px;color:var(--mu);margin:2px 0 8px}
+.warn{display:none;padding:10px;border-left:4px solid #E69F00;background:#E69F0022;margin:8px 0}
+#cloud{width:100%;height:380px}footer{padding:18px;text-align:center;color:var(--mu);font-size:13px}
+@media(max-width:800px){.g2{grid-template-columns:1fr}}
+.cap{font-weight:800;font-size:15px;margin:12px 0 4px;color:var(--fg)}.cap:empty{display:none}
+.desc{margin:0 0 8px;padding:8px 12px;border-left:3px solid var(--ac);background:rgba(0,114,178,.08);border-radius:0 6px 6px 0;color:var(--mu);font-size:13.5px}
+.ig{display:grid;grid-template-columns:1fr 1fr;gap:18px}.ig h2{font-size:18px}.ig p{margin:0 0 8px}.ig ul{margin:6px 0 0;padding-left:18px}.ig li{margin-bottom:4px}
+#intro .ig>div{padding:16px 18px;border-radius:10px;border:1px solid rgba(0,114,178,.35);background:linear-gradient(145deg,rgba(0,114,178,.16),rgba(10,147,150,.05));text-align:justify;text-justify:inter-word}
+#intro .ig h2{text-align:left}
+@media(max-width:800px){.ig{grid-template-columns:1fr}}
+@media(max-width:700px){main{padding:6px}section{padding:10px}#map,#map2{height:480px!important}#hT{height:640px!important}#hS{height:calc(100vw + 60px)!important}#hI{height:900px!important}#cloud{height:420px}.cap{font-size:14px}}
+</style></head><body>
+<header><div class="hw"><span class="chip">UAS Visualisasi Data dan Informasi</span><h1>Visualisasi Multi-Level Struktur Pengeluaran dan Pemetaan Geospasial Inflasi Daerah di Indonesia Berbasis Web Interaktif Disertai Text Mining BRS BPS</h1><p>Politeknik Statistika STIS · Sumber data: BPS</p></div></header>
+<nav><a href="#geo"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><ellipse cx="12" cy="12" rx="4.2" ry="9.5"/><path d="M2.5 12h19M4 7.2h16M4 16.8h16"/></svg>Geospasial</a><a href="#hier"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2.5" width="6" height="5" rx="1"/><rect x="2.5" y="16.5" width="6" height="5" rx="1"/><rect x="15.5" y="16.5" width="6" height="5" rx="1"/><path d="M12 7.5v4.5M5.5 16.5V12h13v4.5"/></svg>Hierarki</a><a href="#teks"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2.5h8l4.5 4.5v14.5H6z"/><path d="M14 2.5V7h4.5M9 12h6.5M9 15.5h6.5M9 19h4"/></svg>Text Mining</a><a href="#tentang"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M12 11v6"/><path d="M12 7.6v.2" stroke-width="2.6"/></svg>Tentang</a></nav>
+<main>
+<section id="intro"><div class="ig">
+<div><h2>Apa itu IHK dan inflasi?</h2>
+<p><b>Indeks Harga Konsumen (IHK)</b> mengukur perubahan rata-rata harga barang dan jasa yang dikonsumsi rumah tangga dari waktu ke waktu. Pada dashboard ini tahun dasarnya 2022 (2022 = 100), sehingga IHK 110 berarti harga-harga rata-rata sudah 10% lebih tinggi daripada tahun 2022.</p>
+<p><b>Inflasi</b> adalah kenaikan harga barang dan jasa secara umum dan terus-menerus, dihitung dari perubahan IHK. Inflasi <i>month-to-month</i> (m-to-m) membandingkan IHK suatu bulan dengan bulan sebelumnya. Nilai negatif disebut <b>deflasi</b>, yaitu harga rata-rata turun.</p>
+<p>IHK disusun menurut <b>kelompok pengeluaran</b> dan <b>subkelompok</b> (makanan, perumahan, transportasi, pendidikan, dan seterusnya). Dengan begitu terlihat kelompok mana yang mendorong kenaikan harga.</p></div>
+<div><h2>Tentang dashboard ini</h2>
+<p>Dashboard ini memvisualisasikan IHK dan inflasi Indonesia tahun 2025 pada tiga tingkat wilayah (nasional, 38 provinsi, dan 150 kabupaten/kota sampel), lengkap dengan text mining Berita Resmi Statistik (BRS) inflasi. Isinya terbagi menjadi tiga bagian:</p>
+<ul><li><b>Geospasial</b>: peta choropleth dan proportional symbol untuk membandingkan wilayah.</li>
+<li><b>Hierarki</b>: struktur IHK dan inflasi nasional dari Umum ke Kelompok ke Subkelompok.</li>
+<li><b>Text Mining</b>: kata, topik, dan jaringan istilah dalam 114 BRS inflasi seluruh Provinsi di Indonesia Juli–September 2026.</li></ul>
+<p style="margin-top:8px">Setiap grafik punya filter sendiri. Judul di atas grafik ikut berubah mengikuti filter yang dipilih.</p></div>
+</div></section>
+
+<div class="warn" id="up">Data tidak bisa dimuat otomatis (biasanya karena file dibuka langsung dari folder). Pilih file <b>Inflasi_IHK_2025_Final_dengan_UMUM.xlsx</b> dan <b>brs_textmining.json</b> di sini: <input type="file" id="fi" multiple accept=".xlsx,.json"></div>
+<div class="warn" id="gw"></div>
+
+<section id="geo"><h2>1a. Peta Choropleth: IHK dan Inflasi Provinsi → Kab/Kota Sampel</h2>
+<p class="sub">Warna = nilai variabel. <b>Zoom in</b> ke satu provinsi (zoom ≥ 5) dan choropleth kab/kota sampel IHK di provinsi itu muncul. Klik provinsi untuk melihat tren bulanannya.</p>
+<div class="ctl"><label>Variabel<select id="gv"><option value="ihk">IHK (2022=100)</option><option value="inf" selected>Inflasi bulanan (m-to-m, %)</option></select></label>
+<label>Bulan (2025)<select id="gm"></select></label><label>Kelompok pengeluaran<select id="gg"></select></label></div>
+<div class="cap" id="c_map"></div><p class="desc">Peta choropleth ini menjelaskan bagaimana IHK dan inflasi bulanan bergerak serta berbeda antarprovinsi di Indonesia sepanjang tahun 2025. Pada variabel inflasi, warna <b style="color:#b35806">jingga</b> berarti inflasi makin tinggi dan <b style="color:#2166ac">biru</b> berarti deflasi (harga turun). Pada IHK, skala viridis bergerak dari ungu (rendah) ke kuning (tinggi). Zoom ke satu provinsi untuk melihat kab/kota sampelnya.</p><div id="map" style="height:560px"></div><div class="src">Sumber: Badan Pusat Statistik, Indeks Harga Konsumen 38 Provinsi di Indonesia 2025 (2022=100) &amp; Indeks Harga Konsumen 150 Kabupaten/Kota di Indonesia 2025 (2022=100), diakses pada 3 Oktober 2026 melalui bps.go.id. Batas wilayah: GeoJSON non-BPS. Palet: biru-putih-jingga (inflasi) / viridis (IHK), ramah buta warna.</div>
+<div class="cap" id="c_line">Klik salah satu provinsi pada peta di atas untuk menampilkan tren bulanannya.</div><p class="desc">Grafik garis ini menunjukkan bagaimana nilai provinsi yang diklik berkembang dari bulan ke bulan sepanjang 2025 dibandingkan dengan angka nasional (umum). Dari sini terlihat bulan-bulan saat provinsi bergerak lebih cepat atau lebih lambat daripada nasional.</p><div id="line" style="height:300px"></div>
+<h2 style="margin-top:26px">1b. Peta Proportional Symbol</h2>
+<p class="sub">Luas lingkaran sebanding dengan nilai mutlak variabel ukuran; <b style="color:#b35806">jingga</b> = di atas pembanding (nasional / tahun dasar), <b style="color:#2166ac">biru</b> = di bawahnya.</p>
+<div class="ctl"><label>Level<select id="pl"><option value="P">Provinsi</option><option value="K">Kab/Kota sampel</option></select></label>
+<label>Ukuran lingkaran<select id="pv"><option value="dev">Selisih inflasi m-to-m terhadap nasional</option><option value="cum">Kenaikan harga kumulatif (IHK − 100)</option></select></label>
+<label>Bulan (2025)<select id="pm"></select></label><label>Kelompok pengeluaran<select id="pg"></select></label></div>
+<div class="cap" id="c_prop"></div><p class="desc">Peta proportional symbol ini menjelaskan seberapa jauh inflasi tiap wilayah menyimpang dari angka nasional, atau seberapa besar harga sudah naik sejak tahun dasar 2022, di seluruh Indonesia sepanjang tahun 2025. Lingkaran yang lebih luas berarti selisihnya lebih besar. Warna jingga menandakan di atas pembanding dan biru di bawahnya.</p><div id="map2" style="height:560px"></div><div class="src">Sumber: Badan Pusat Statistik, Indeks Harga Konsumen 38 Provinsi di Indonesia 2025 (2022=100) &amp; Indeks Harga Konsumen 150 Kabupaten/Kota di Indonesia 2025 (2022=100), diakses pada 3 Oktober 2026 melalui bps.go.id. Batas wilayah: GeoJSON non-BPS. Palet: biru-putih-jingga (inflasi) / viridis (IHK), ramah buta warna. Simbol diletakkan di titik tengah wilayah.</div></section>
+
+<section id="hier"><h2>2. Hierarki Nasional: Umum → Kelompok → Subkelompok</h2><p class="sub">Setiap grafik punya filter sendiri. Ukuran blok = IHK, warna = variabel yang dipilih. Klik blok untuk drill-down (treemap dan icicle punya breadcrumb di atas). Arahkan kursor untuk nama lengkap.</p><h3>Treemap</h3><div class="ctl"><label>Warna berdasarkan<select id="hvT"><option value="inf">Inflasi m-to-m (%)</option><option value="ihk">IHK</option></select></label><label>Bulan (2025)<select id="hmT"></select></label></div><div class="cap" id="c_hT"></div><p class="desc">Treemap ini menjelaskan bagaimana IHK nasional tersusun dari kelompok dan subkelompok pengeluaran. Luas blok sebanding dengan IHK dan warna menunjukkan inflasi m-to-m atau IHK. Klik sebuah blok untuk melihat isinya lebih dalam.</p><div id="hT" style="height:520px"></div><h3>Sunburst</h3><div class="ctl"><label>Warna berdasarkan<select id="hvS"><option value="inf">Inflasi m-to-m (%)</option><option value="ihk">IHK</option></select></label><label>Bulan (2025)<select id="hmS"></select></label></div><div class="cap" id="c_hS"></div><p class="desc">Sunburst ini menampilkan hierarki yang sama dalam bentuk lingkaran berlapis: lingkaran tengah adalah Umum, cincin tengah adalah kelompok, dan cincin luar adalah subkelompok. Cara ini memudahkan melihat subkelompok mana yang berasal dari kelompok tertentu.</p><div id="hS" style="height:560px"></div><h3>Icicle</h3><div class="ctl"><label>Warna berdasarkan<select id="hvI"><option value="inf">Inflasi m-to-m (%)</option><option value="ihk">IHK</option></select></label><label>Bulan (2025)<select id="hmI"></select></label></div><div class="cap" id="c_hI"></div><p class="desc">Icicle ini menyajikan hierarki IHK nasional sebagai blok bertingkat dari atas (Umum) ke bawah (subkelompok). Lebar blok sebanding dengan IHK sehingga perbandingan antarsubkelompok pada satu kelompok mudah dibaca.</p><div id="hI" style="height:560px"></div><h3>Dendrogram (pohon hierarki) — klik kelompok untuk memperbesar</h3><div class="ctl"><label>Warna berdasarkan<select id="hvD"><option value="inf">Inflasi m-to-m (%)</option><option value="ihk">IHK</option></select></label><label>Bulan (2025)<select id="hmD"></select></label></div><div class="cap" id="c_hD"></div><p class="desc">Dendrogram ini menggambarkan pohon hierarki IHK nasional: Umum bercabang ke kelompok, lalu ke subkelompok. Warna titik menunjukkan inflasi atau IHK pada bulan terpilih. Klik kotak kelompok untuk memperbesar subkelompoknya.</p><div id="hD" style="height:1000px"></div><div class="src">Sumber: Badan Pusat Statistik, Indeks Harga Konsumen Nasional menurut Kelompok dan Subkelompok 2025 (2022=100), diakses pada 3 Oktober 2026 melalui bps.go.id. Palet: biru-putih-jingga (inflasi) / viridis (IHK), ramah buta warna. Dendrogram = pohon hierarki (bukan klaster statistik).</div></section>
+
+<section id="teks"><h2>3. Text Mining BRS Inflasi (Juli–September 2026)</h2>
+<p class="sub">Korpus 114 Berita Resmi Statistik inflasi provinsi. Pra-pemrosesan: case folding, tokenisasi, stopword Bahasa Indonesia (Sastrawi + domain), LDA, bigram.</p>
+<div class="warn" id="tmmsg">File <b>brs_textmining.json</b> belum ditemukan. Jalankan <code>preprocess_brs.py</code> dulu (lihat petunjuk), lalu taruh hasilnya satu folder dengan index.html.</div>
+<div class="ctl"><label>Periode (wordcloud)<select id="tper"></select></label></div>
+<h3>Word cloud</h3><div class="cap" id="c_cloud"></div><p class="desc">Word cloud ini menjelaskan istilah apa yang paling sering dibahas dalam BRS inflasi 38 provinsi. Semakin besar tulisan, semakin sering kata itu muncul. Kata-kata ini menunjukkan bahan utama yang dipakai BPS untuk menjelaskan inflasi dan deflasi daerah.</p><svg id="cloud"></svg>
+<div class="g2"><div><div class="ctl"><label>Topik<select id="tp"></select></label></div><div class="cap" id="c_topic"></div><p class="desc">Grafik batang ini menjelaskan topik apa yang tersembunyi dalam BRS. Model LDA mengelompokkan kata-kata yang sering muncul bersamaan menjadi lima topik, dan batang menunjukkan kata paling berpengaruh pada topik yang dipilih.</p><div id="tbar" style="height:340px"></div></div><div><div class="cap" id="c_trend">Tren proporsi lima topik BRS per minggu terbit, Juli–September 2026</div><p class="desc">Grafik garis ini menjelaskan bagaimana porsi tiap topik berubah dari minggu ke minggu selama BRS terbit. Topik yang naik berarti bahasannya makin dominan pada minggu itu.</p><div id="ttr" style="height:400px"></div></div></div>
+<h3>Jaringan bigram</h3><div class="ctl"><label>Bobot minimum <span id="nwv"></span><input type="range" id="nw" min="1" max="50" value="8"></label><label>Kata kunci<input type="text" id="nk" placeholder="mis. bensin"></label></div>
+<div class="cap" id="c_net"></div><p class="desc">Jaringan bigram ini menjelaskan kata-kata mana yang sering berpasangan berurutan dalam BRS. Simpul adalah kata, garis adalah pasangan kata, dan garis lebih tebal berarti pasangan itu lebih sering muncul. Warna menandai kelompok kata yang saling terhubung erat, dan ukuran simpul menunjukkan jumlah hubungannya.</p><div id="net" style="height:620px"></div><div class="src">Sumber: Badan Pusat Statistik, Berita Resmi Statistik Indeks Harga Konsumen 38 Provinsi di Indonesia Juli–September 2026, diakses pada 3 Oktober 2026.</div></section>
+
+<section id="tentang"><h2>Tentang</h2><p>Data utama: BPS (IHK dan inflasi 2025 nasional, provinsi, kab/kota sampel; BRS inflasi bulan Juli-September 2026 seluruh 38 Provinsi di Indonesia). Pembuatan kode dibantu alat AI (Claude) sebatas alat bantu, dideklarasikan sesuai ketentuan UAS· Tanggal akses data: 3 Oktober 2026.</p></section>
+</main><footer>Sumber: BPS · Politeknik Statistika STIS</footer>
+
+<script>
+const DATA='Inflasi_IHK_2025_Final_dengan_UMUM.xlsx',TMU='brs_textmining.json',
+UP='https://raw.githubusercontent.com/ardian28/GeoJson-Indonesia-38-Provinsi/main/Provinsi/38%20Provinsi%20Indonesia%20-%20Provinsi.json',
+UK='https://raw.githubusercontent.com/eppofahmi/geojson-indonesia/master/kota/all_kabkota_ind.geojson';
+const M=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agt','Sep','Okt','Nov','Des'],$=id=>document.getElementById(id),
+OI=['#0072B2','#E69F00','#009E73','#D55E00','#CC79A7','#56B4E9','#F0E442','#999999'];
+const num=v=>v==null||v===''?null:(v==='~0'?0.001:(isFinite(+v)?+v:null)),nz=s=>String(s).toLowerCase().replace(/[^a-z]/g,'');
+const PA={daerahistimewayogyakarta:'diyogyakarta',yogyakarta:'diyogyakarta',jakartaraya:'dkijakarta',bangkabelitung:'kepulauanbangkabelitung',kepbangkabelitung:'kepulauanbangkabelitung',kepriau:'kepulauanriau'},pk=s=>{s=nz(s);return PA[s]||s};
+const AL={tanjung:'tabalong',luwuk:'banggai',maumere:'sikka',sampit:'kotawaringintimur',meulaboh:'acehbarat',muarabungo:'bungo',singaraja:'buleleng',purwokerto:'banyumas',tembilahan:'indragirihilir',timika:'mimika',waingapu:'sumbatimur',watampone:'bone',tanjungpandan:'belitung',tanjungselor:'bulungan',tolitoli:'tolitoli',padangsidimpuan:'padangsidempuan'};
+const SH={ihkP:'IHK Provinsi',infP:'Inflasi mtm Provinsi',ihkK:'IHK KabKot',infK:'Inflasi mtm KabKot',ihkN:'ihk nasional',infN:'inflasi nasional'};
+let S=null,PG,KG,TM=null,KIDX={};
+const MF=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'],setCap=(id,t)=>{const e=$(id);if(e)e.textContent=t},tc=s=>String(s).toLowerCase().replace(/\b\w/g,c=>c.toUpperCase()),gn=g=>g==='UMUM'?'Umum (semua kelompok pengeluaran)':cap(String(g));
+const mob=()=>window.innerWidth<700,cbar=(t,len)=>mob()?{title:{text:t,side:'top'},orientation:'h',x:.5,xanchor:'center',y:-.02,yanchor:'top',len:.92,thickness:12}:{title:{text:t},len:len};
+const cs=v=>v==='inf'?{colorscale:[[0,'#2166ac'],[.5,'#f7f7f7'],[1,'#b35806']]}:{colorscale:'Viridis'};
+const fv=(v,x)=>x==null?'n/a':(v==='inf'?x.toFixed(3):x),cap=t=>t.charAt(0)+t.slice(1).toLowerCase();
+/* geometri */
+const polys=g=>g.type==='Polygon'?[g.coordinates]:g.coordinates;
+function inR([x,y],r){let c=false;for(let i=0,j=r.length-1;i<r.length;j=i++){const[a,b]=r[i],[d,e]=r[j];if((b>y)!==(e>y)&&x<(d-a)*(y-b)/(e-b)+a)c=!c}return c}
+const pip=(pt,g)=>polys(g).some(p=>inR(pt,p[0]));
+function bb(g){let a=[1e9,1e9,-1e9,-1e9];polys(g).forEach(p=>p[0].forEach(([x,y])=>{a=[Math.min(a[0],x),Math.min(a[1],y),Math.max(a[2],x),Math.max(a[3],y)]}));return a}
+function cen(g){const p=polys(g).sort((a,b)=>b[0].length-a[0].length)[0],b=bb({type:'Polygon',coordinates:[p[0]]});return[(b[0]+b[2])/2,(b[1]+b[3])/2]}
+function nearP(pt){let b=null,d=1e9;PG.features.forEach(f=>{const e=(f._c[0]-pt[0])**2+(f._c[1]-pt[1])**2;if(e<d){d=e;b=f.properties.k}});return b}
+function provAt(pt){const f=PG.features.find(f=>pt[0]>=f._b[0]&&pt[0]<=f._b[2]&&pt[1]>=f._b[1]&&pt[1]<=f._b[3]&&pip(pt,f.geometry));return f?f.properties.k:null}
+/* muat */
+async function init(){
+ try{[PG,KG]=await Promise.all([fetch(UP).then(r=>r.json()),fetch(UK).then(r=>r.json())])}catch(e){$('gw').style.display='block';$('gw').textContent='GeoJSON gagal dimuat (cek koneksi internet).';return}
+ PG.features=PG.features.filter(f=>f.geometry);KG.features=KG.features.filter(f=>f.geometry&&/Polygon/.test(f.geometry.type));
+ PG.features.forEach(f=>{const p=f.properties;p.k=pk(p.PROVINSI);f._b=bb(f.geometry);f._c=cen(f.geometry)});
+ KG.features.forEach((f,i)=>{f.id=i;const p=f.properties,a=String(p.alt_name||p.name),K=/^kota /i.test(a)?'K':'B',n=a.replace(/^(kota|kabupaten)\s+/i,'');p.TYPE_2=K==='K'?'Kota':'Kabupaten';p.NAME_2=n.toLowerCase().replace(/\b\w/g,c=>c.toUpperCase());f._k=K+nz(n);KIDX[f._k]=i;f._c=cen(f.geometry);f._p=provAt(f._c)||nearP(f._c)});
+ try{const r=await fetch(DATA);if(!r.ok)throw 0;readWB(await r.arrayBuffer())}catch(e){$('up').style.display='block'}
+ try{const r=await fetch(TMU);if(!r.ok)throw 0;TM=await r.json()}catch(e){$('up').style.display='block'}
+ if(S)startAll();if(TM)startTM();else $('tmmsg').style.display='block'}
+function readWB(buf){const wb=XLSX.read(buf,{type:'array'});S={};for(const k in SH)S[k]=XLSX.utils.sheet_to_json(wb.Sheets[SH[k]],{defval:null})}
+$('fi').onchange=async e=>{for(const f of e.target.files){if(/\.xlsx$/i.test(f.name))readWB(await f.arrayBuffer());else TM=JSON.parse(await f.text())}
+ if(S&&!$('gg').options.length)startAll();else if(S){drawMap();drawProp();['T','S','I','D'].forEach(drawH)}if(TM){$('tmmsg').style.display='none';startTM()}};
+function fill(id,arr,sel){const s=$(id);s.innerHTML=arr.map((a,i)=>`<option value="${Array.isArray(a)?a[0]:i}">${Array.isArray(a)?a[1]:a}</option>`).join('');if(sel!=null)s.value=sel}
+function startAll(){const gs=[...new Set(S.ihkP.map(r=>r['Kelompok Pengeluaran']))].map(x=>[x,x]),H=['T','S','I','D'];fill('gg',gs);$('gg').value='UMUM';fill('pg',gs);$('pg').value='UMUM';const lm=(()=>{for(let i=11;i>=0;i--)if(S.ihkP.some(r=>num(r[M[i]])!=null))return i;return 11})();fill('gm',M,lm);fill('pm',M,lm);$('gv').value='inf';
+ H.forEach(c=>{fill('hm'+c,M,11);$('hv'+c).value='inf';$('hv'+c).onchange=$('hm'+c).onchange=()=>drawH(c)});
+ ['gv','gm','gg'].forEach(i=>$(i).onchange=()=>drawMap());['pl','pv','pm','pg'].forEach(i=>$(i).onchange=drawProp);drawMap();drawProp();H.forEach(drawH)}
+/* peta */
+function kabVals(v,g,L){const o={};let miss=new Set();S[v+'K'].filter(r=>r['Kelompok Pengeluaran']===g).forEach(r=>{const n=String(r['Kabupaten/Kota']);if(/^dki jakarta$/i.test(n))return;
+ const s=nz(n.replace(/^(kota|kabupaten)\s+/i,'')),k=(/^kota\s/i.test(n)?'K':'B')+(AL[s]||s),i=KIDX[k]??KIDX[(k[0]=='K'?'B':'K')+k.slice(1)];if(i==null)miss.add(n);else o[i]=num(r[L])});return{o,miss}}
+let st={hi:false,p:null,ready:false},tmr;
+function drawMap(){const v=$('gv').value,L=M[+$('gm').value],g=$('gg').value,gd=$('map');
+ const pv={};S[v+'P'].filter(r=>r['Kelompok Pengeluaran']===g).forEach(r=>pv[pk(r.Provinsi)]=num(r[L]));
+ const nat=num((S[v+'N'].find(r=>r.Jenis==='UMUM')||{})[L]),{o:kv,miss}=kabVals(v,g,L);
+ const all=Object.values(pv).concat(Object.values(kv)).filter(x=>x!=null),lo=Math.min(...all),hi=Math.max(...all),a=Math.max(Math.abs(lo),Math.abs(hi));
+ const fl=gd._fullLayout&&gd._fullLayout.map,z=fl?fl.zoom:3.6,c=fl?fl.center:{lon:118,lat:-2.5},zh=z>=5,cp=zh?provAt([c.lon,c.lat]):null;st.hi=zh;st.p=cp;
+ const unit=v==='inf'?'%':'',ttl=v==='inf'?'Inflasi m-to-m (%)':'IHK';
+ const t=[{type:'choroplethmap',geojson:PG,featureidkey:'properties.PROVINSI',locations:PG.features.map(f=>f.properties.PROVINSI),z:PG.features.map(f=>pv[f.properties.k]??null),
+  text:PG.features.map(f=>`<b>${f.properties.PROVINSI}</b><br>${ttl}: ${fv(v,pv[f.properties.k])}${unit}`),hoverinfo:'text',coloraxis:'coloraxis',marker:{opacity:zh?.35:.85,line:{width:1.2,color:'#222'}},name:'Provinsi'}];
+ const ki=Object.keys(kv).filter(i=>kv[i]!=null&&KG.features[i]._p===cp&&zh);
+ const pnm=cp?((PG.features.find(f=>f.properties.k===cp)||{properties:{}}).properties.PROVINSI):null;
+ setCap('c_map',`Peta choropleth ${v==='inf'?'inflasi bulanan (m-to-m)':'IHK (2022=100)'} provinsi, ${gn(g)}, bulan ${MF[+$('gm').value]} 2025`+(ki.length&&pnm?` · rincian kab/kota sampel di ${tc(pnm)}`:''));
+ if(ki.length)t.push({type:'choroplethmap',geojson:KG,locations:ki.map(Number),z:ki.map(i=>kv[i]),text:ki.map(i=>`<b>${KG.features[i].properties.NAME_2}</b> (${KG.features[i].properties.TYPE_2})<br>${ttl}: ${fv(v,kv[i])}${unit}`),hoverinfo:'text',coloraxis:'coloraxis',marker:{line:{width:1,color:'#222'}},name:'Kab/Kota sampel'});
+ Plotly.react(gd,t,{map:{style:'carto-positron',center:c,zoom:z},margin:{t:0,b:mob()?75:0,l:0,r:0},uirevision:'k',showlegend:false,
+  coloraxis:{...cs(v),cmin:v==='inf'?-a:lo,cmax:v==='inf'?a:hi,colorbar:cbar(ttl,.7)}},{responsive:true,scrollZoom:true});
+ $('gw').style.display=miss.size?'block':'none';if(miss.size)$('gw').textContent='Kab/kota belum terpetakan ke GeoJSON ('+miss.size+'): '+[...miss].join(', ')+'. Periksa ejaan nama di Excel vs GeoJSON.';
+ if(!st.ready){st.ready=true;gd.on('plotly_relayout',()=>{clearTimeout(tmr);tmr=setTimeout(()=>{const f=gd._fullLayout.map,h=f.zoom>=5,p=h?provAt([f.center.lon,f.center.lat]):null;if(h!==st.hi||p!==st.p)drawMap()},250)});
+  gd.on('plotly_click',e=>{const p=e.points[0];if(p.curveNumber===0)drawLine(p.location)})}}
+function drawLine(pn){const v=$('gv').value,g=$('gg').value,r=S[v+'P'].find(r=>pk(r.Provinsi)===pk(pn)&&r['Kelompok Pengeluaran']===g),n=S[v+'N'].find(r=>r.Jenis==='UMUM');if(!r)return;
+ setCap('c_line',`Tren bulanan ${v==='inf'?'inflasi m-to-m (%)':'IHK'} ${tc(pn)}, ${gn(g)}, Januari–Desember 2025, dibandingkan nasional (umum)`);
+ Plotly.react('line',[{x:M,y:M.map(m=>num(r[m])),name:pn,mode:'lines+markers',line:{color:'#0072B2'}},{x:M,y:M.map(m=>num(n[m])),name:'Nasional (Umum)',mode:'lines+markers',line:{color:'#D55E00',dash:'dot'}}],
+ {title:{text:`Tren bulanan 2025: ${pn} (${g})`,font:{size:14}},margin:{t:40,b:40,l:50,r:10},yaxis:{title:v==='inf'?'Inflasi m-to-m (%)':'IHK'},legend:{orientation:'h',y:-.2}},{responsive:true})}
+/* proportional symbol */
+let p2=false;
+function drawProp(){let has=new Set();const dv=$('pv').value==='dev',L=M[+$('pm').value],g=$('pg').value,lv=$('pl').value,src=dv?'inf':'ihk',lon=[],lat=[],nm=[],val=[];
+ const nr=S.infN.find(r=>r.Jenis!=='SUBKELOMPOK'&&nz(r['Kelompok Pengeluaran'])===nz(g))||S.infN.find(r=>r.Jenis==='UMUM'),nat=num(nr[L]);
+ if(lv==='P')S[src+'P'].filter(r=>r['Kelompok Pengeluaran']===g).forEach(r=>{const f=PG.features.find(f=>f.properties.k===pk(r.Provinsi)),x=num(r[L]);if(f&&x!=null){lon.push(f._c[0]);lat.push(f._c[1]);nm.push(f.properties.PROVINSI);val.push(x)}});
+ else{const o=kabVals(src,g,L).o;has=new Set(Object.keys(o).filter(i=>o[i]!=null).map(Number));for(const i in o)if(o[i]!=null){const f=KG.features[i];lon.push(f._c[0]);lat.push(f._c[1]);nm.push(f.properties.NAME_2+' ('+f.properties.TYPE_2+')');val.push(o[i])}}
+ const d=val.map(x=>dv?x-nat:x-100),mx=Math.max(...d.map(Math.abs),.01),ref=dv?'nasional':'tahun dasar';
+ setCap('c_prop',`Peta proportional symbol ${dv?'selisih inflasi m-to-m terhadap nasional':'kenaikan harga kumulatif (IHK − 100)'} ${lv==='P'?'provinsi':'kab/kota sampel'}, ${gn(g)}, bulan ${MF[+$('pm').value]} 2025`);
+ Plotly.react('map2',[...baseLayers(lv,has),{type:'scattermap',mode:'markers',lon,lat,text:nm.map((n,i)=>`<b>${n}</b><br>${dv?'Inflasi':'IHK'}: ${dv?val[i].toFixed(3):val[i]}<br>Selisih thd ${ref}: ${d[i].toFixed(dv?3:2)}`),hoverinfo:'text',
+  marker:{size:d.map(Math.abs),sizemode:'area',sizeref:2*mx/(45*45),sizemin:3,color:d.map(x=>x>=0?'#b35806':'#2166ac'),opacity:.75}}],
+  {map:{style:'carto-positron',center:{lon:118,lat:-2.5},zoom:3.6},margin:{t:0,b:0,l:0,r:0},uirevision:'p',showlegend:false,
+   annotations:[{x:.01,y:.02,xref:'paper',yref:'paper',showarrow:false,align:'left',bgcolor:'rgba(255,255,255,.85)',font:{color:'#222',size:11},text:`Luas ∝ |selisih thd ${ref}|; maks = ${mx.toFixed(dv?3:2)}<br>Abu lebih gelap = kab/kota sampel IHK<br>Jingga ≥ 0, biru &lt; 0`}]},{responsive:true,scrollZoom:true})}
+function baseLayers(lv,has){const out=[],cs2=[[0,'#eef0f2'],[1,'#a9b6bf']];
+ if(lv==='K'){const idx=KG.features.map((_,i)=>i);out.push({type:'choroplethmap',geojson:KG,locations:idx,z:idx.map(i=>has.has(i)?1:0),zmin:0,zmax:1,colorscale:cs2,showscale:false,
+  text:idx.map(i=>`<b>${KG.features[i].properties.NAME_2}</b> (${KG.features[i].properties.TYPE_2})<br>${has.has(i)?'Sampel IHK':'Bukan sampel IHK'}`),hoverinfo:'text',marker:{line:{width:.8,color:'#3a3a3a'}}})}
+ out.push({type:'choroplethmap',geojson:PG,featureidkey:'properties.PROVINSI',locations:PG.features.map(f=>f.properties.PROVINSI),z:PG.features.map(()=>lv==='K'?0:1),zmin:0,zmax:1,
+  colorscale:lv==='K'?[[0,'rgba(0,0,0,0)'],[1,'rgba(0,0,0,0)']]:cs2,showscale:false,hoverinfo:'skip',marker:{line:{width:2,color:'#111'}}});return out}
+/* hierarki */
+const SHORT={1:'Makanan, Minuman, Tembakau',2:'Pakaian & Alas Kaki',3:'Perumahan & Energi RT',4:'Perlengkapan RT',5:'Kesehatan',6:'Transportasi',7:'Info, Komunikasi, Keuangan',8:'Rekreasi, Olahraga, Budaya',9:'Pendidikan',10:'Restoran',11:'Perawatan Pribadi & Jasa'},
+ tr=(s,n)=>s.length>n?s.slice(0,n-1)+'…':s;
+let dF=null,DI=[],DV=[],AJ=[];
+function drawH(c){const v=$('hv'+c).value,L=M[+$('hm'+c).value],A=S.ihkN,B=S.infN,kel={},
+ ids=A.map(r=>r.Jenis==='UMUM'?'U0':(r.Jenis==='KELOMPOK'?'K':'S')+r.Kode);A.forEach((r,i)=>{if(r.Jenis==='KELOMPOK')kel[r['Kelompok Pengeluaran']]=ids[i]});
+ const par=A.map(r=>r.Jenis==='UMUM'?'':r.Jenis==='KELOMPOK'?'U0':kel[r['Kelompok Induk']]),has=new Set(par),
+ lab=A.map(r=>r.Jenis==='UMUM'?'Umum':r.Jenis==='KELOMPOK'?SHORT[r.Kode]:tr(cap(r['Kelompok Pengeluaran']),32)),
+ ihk=A.map(r=>num(r[L])),inf=B.map(r=>num(r[L])),col=v==='inf'?inf:ihk,a=Math.max(...inf.map(x=>Math.abs(x||0))),
+ cd=A.map((r,i)=>[cap(r['Kelompok Pengeluaran']),cap(r.Jenis),ihk[i],inf[i]]),
+ mk={colors:col,...cs(v),...(v==='inf'?{cmin:-a,cmax:a}:{}),showscale:true,colorbar:cbar(v==='inf'?'Inflasi (%)':'IHK',.6)},
+ ht='<b>%{customdata[0]}</b><br>Level: %{customdata[1]}<br>IHK: %{customdata[2]}<br>Inflasi m-to-m: %{customdata[3]}%<extra></extra>',cfg={responsive:true},T={treemap:'Treemap',sunburst:'Sunburst',icicle:'Icicle'};
+ setCap('c_h'+c,`${{T:'Treemap',S:'Sunburst',I:'Icicle',D:'Dendrogram'}[c]} IHK nasional bulan ${MF[+$('hm'+c).value]} 2025 · warna menurut ${v==='inf'?'inflasi m-to-m (%)':'IHK'}`+(c==='D'&&dF?` · subkelompok ${lab[ids.indexOf(dF)]}`:''));
+ if(c!=='D'){const type={T:'treemap',S:'sunburst',I:'icicle'}[c];
+  Plotly.react('h'+c,[{type,ids,labels:lab,parents:par,values:ids.map((id,i)=>has.has(id)?0:ihk[i]),branchvalues:'remainder',customdata:cd,hovertemplate:ht,textinfo:'label',marker:{...mk,line:{width:1,color:'#fff'}},...(c==='T'?{tiling:{pad:2}}:{}),...(c==='S'?{insidetextorientation:'radial'}:{})}],
+  {title:mob()?{text:''}:{text:`${T[type]} · ${L} 2025 · ${v==='inf'?'warna: inflasi':'warna: IHK'}`,font:{size:14}},margin:{t:mob()?8:40,b:mob()?75:5,l:5,r:5}},cfg);return}
+ const ch={};ids.forEach((id,i)=>{(ch[par[i]]=ch[par[i]]||[]).push(i)});let yy=0;const pos={},sub=i=>A[i].Jenis==='SUBKELOMPOK'&&dF&&par[i]===dF,
+ kids=i=>(dF&&A[i].Jenis==='KELOMPOK'&&ids[i]!==dF)?[]:(ch[ids[i]]||[]);
+ (function walk(i,d){const k=kids(i);if(!k.length){pos[i]=[d,yy];yy+=sub(i)?2.3:1}else{k.forEach(x=>walk(x,d+1));pos[i]=[d,k.reduce((s,x)=>s+pos[x][1],0)/k.length]}})(0,0);
+ const vis=ids.map((_,i)=>i).filter(i=>pos[i]),wrap=(t,n)=>t.replace(new RegExp('(.{1,'+n+'})(\\s+|$)','g'),'$1<br>').replace(/<br>$/,''),txt=i=>sub(i)?wrap(cap(A[i]['Kelompok Pengeluaran']),mob()?24:34):lab[i];
+ const lx=[],ly=[];vis.forEach(i=>{if(!par[i])return;const p=ids.indexOf(par[i]),[cx,cy]=pos[i],[px,py]=pos[p];lx.push(px,px,cx,null);ly.push(py,cy,cy,null)});
+ DI=ids;DV=vis;AJ=A.map(r=>r.Jenis);$('hD').style.height=Math.round(yy*24+100+(mob()?70:0))+'px';
+ Plotly.react('hD',[{x:lx,y:ly,mode:'lines',line:{color:'#8899aa',width:1.2},hoverinfo:'skip'},
+  {x:vis.map(i=>pos[i][0]),y:vis.map(i=>pos[i][1]),mode:'markers+text',text:vis.map(txt),textposition:vis.map(i=>kids(i).length?'top left':'middle right'),textfont:{size:vis.map(i=>mob()?(sub(i)?10:9):(sub(i)?13:11))},
+  marker:{size:vis.map(i=>sub(i)?14:AJ[i]==='KELOMPOK'?13:11),symbol:vis.map(i=>AJ[i]==='KELOMPOK'?'square':'circle'),color:vis.map(i=>col[i]),...cs(v),...(v==='inf'?{cmin:-a,cmax:a}:{}),showscale:true,colorbar:cbar(v==='inf'?'Inflasi (%)':'IHK',.4),line:{width:1,color:'#333'}},customdata:vis.map(i=>cd[i]),hovertemplate:ht}],
+  {title:mob()?{text:''}:{text:`Dendrogram · ${L} 2025 · klik kotak kelompok untuk memperbesar subkelompoknya, klik lagi untuk kembali`,font:{size:13}},showlegend:false,height:Math.round(yy*24+100+(mob()?70:0)),xaxis:{visible:false,range:mob()?[-.9,4.6]:[-.45,2.9]},yaxis:{visible:false,autorange:'reversed'},margin:{t:mob()?8:40,b:mob()?75:5,l:5,r:5}},cfg).then(gd=>{if(!gd._dc){gd._dc=1;gd.on('plotly_click',e=>{const p=e.points[0];if(p.curveNumber!==1)return;const i=DV[p.pointNumber];if(AJ[i]==='KELOMPOK'){dF=dF===DI[i]?null:DI[i];drawH('D')}})}})}
+/* text mining */
+function startTM(){fill('tper',Object.keys(TM.words).map(k=>[k,k]));fill('tp',TM.topics.map(t=>[t.id,'T'+(t.id+1)+': '+t.label]),0);
+ $('tper').onchange=drawCloud;$('tp').onchange=drawTopic;$('nw').oninput=drawNet;$('nk').oninput=drawNet;drawCloud();drawTopic();drawTrend();drawNet()}
+function drawCloud(){const pr=$('tper').value;setCap('c_cloud',`Word cloud 120 kata paling sering muncul dalam BRS inflasi ${pr==='Semua'?'Juli–September 2026 (seluruh periode)':pr}`);const w=(TM.words[$('tper').value]||[]).slice(0,mob()?80:120),svg=d3.select('#cloud'),W=svg.node().clientWidth||900,H=mob()?420:380;svg.selectAll('*').remove();svg.attr('viewBox',`0 0 ${W} ${H}`);if(!d3.layout||!d3.layout.cloud){svg.append('text').attr('y',20).text('d3-cloud gagal dimuat');return}
+ const mx=d3.max(w,d=>d.f),sc=d3.scaleSqrt().domain([0,mx]).range(mob()?[9,40]:[10,70]);
+ d3.layout.cloud().size([W,H]).words(w.map(d=>({text:d.w,f:d.f,size:sc(d.f)}))).padding(2).rotate(()=>0).fontSize(d=>d.size).on('end',ws=>{
+  svg.append('g').attr('transform',`translate(${W/2},${H/2})`).selectAll('text').data(ws).enter().append('text').style('font-size',d=>d.size+'px').style('font-weight',600).style('fill',(d,i)=>OI[i%5]).attr('text-anchor','middle').attr('transform',d=>`translate(${d.x},${d.y})`).text(d=>d.text).append('title').text(d=>d.text+': '+d.f)}).start()}
+function drawTopic(){const t=TM.topics[+$('tp').value],w=t.words.slice(0,10).reverse();setCap('c_topic',`10 kata teratas Topik ${t.id+1} (${t.label}) menurut bobot LDA`);Plotly.react('tbar',[{type:'bar',orientation:'h',x:w.map(x=>x[1]),y:w.map(x=>x[0]),marker:{color:OI[t.id%8]}}],{title:{text:'Kata teratas topik: '+t.label,font:{size:14}},margin:{t:40,l:mob()?85:110,r:10,b:30},xaxis:{title:'Bobot'}},{responsive:true})}
+function drawTrend(){Plotly.react('ttr',TM.topics.map(t=>({x:TM.trend.x,y:TM.trend.y[t.id],name:'T'+(t.id+1)+': '+t.label,mode:'lines+markers',line:{color:OI[t.id%8]}})),{title:{text:'Tren proporsi topik per minggu terbit',font:{size:14}},margin:{t:40,b:40,l:50,r:10},yaxis:{title:'Proporsi rata-rata'},legend:{orientation:'h',y:-.25},hovermode:'x unified'},{responsive:true})}
+function drawNet(){const mw=+$('nw').value,kw=$('nk').value.toLowerCase().trim();$('nwv').textContent='('+mw+')';setCap('c_net',`Jaringan bigram BRS inflasi Juli–September 2026 dengan bobot minimum ${mw}`+(kw?`, kata kunci "${kw}"`:''));const N=Object.fromEntries(TM.net.nodes.map(n=>[n.id,n])),
+ E=TM.net.edges.filter(e=>e.w>=mw&&(!kw||e.s.includes(kw)||e.t.includes(kw))),use=new Set(E.flatMap(e=>[e.s,e.t])),mxw=Math.max(...E.map(e=>e.w),1),tr=[0,1,2].map(b=>({x:[],y:[],mode:'lines',line:{width:1+b*2,color:'rgba(120,130,150,.55)'},hoverinfo:'skip'}));
+ E.forEach(e=>{const b=Math.min(2,Math.floor(3*e.w/(mxw+1))),a=N[e.s],c=N[e.t];tr[b].x.push(a.x,c.x,null);tr[b].y.push(a.y,c.y,null)});
+ const ns=TM.net.nodes.filter(n=>use.has(n.id));
+ Plotly.react('net',[...tr,{x:ns.map(n=>n.x),y:ns.map(n=>n.y),mode:'markers+text',text:ns.map(n=>n.id),textposition:'top center',textfont:{size:10},
+  marker:{size:ns.map(n=>8+n.deg*1.6),color:ns.map(n=>OI[n.grp%8]),line:{width:1,color:'#333'}},customdata:ns.map(n=>n.deg),hovertemplate:'%{text}<br>Derajat: %{customdata}<extra></extra>'}],
+  {showlegend:false,xaxis:{visible:false},yaxis:{visible:false},margin:{t:60,b:10,l:10,r:10},title:{text:`${E.length} sisi, ${ns.length} simpul · warna = komunitas · ukuran = derajat`,x:.5,y:.98,yanchor:'top',font:{size:13}}},{responsive:true})}
+let mb=mob(),lw=innerWidth,rt;window.addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>{const m=mob(),wc=innerWidth!==lw;lw=innerWidth;if(S&&m!==mb){drawMap();drawProp();['T','S','I','D'].forEach(drawH)}if(TM&&(wc||m!==mb))drawCloud();mb=m},350)});
+(function w(n){if(window.Plotly&&window.XLSX)init().catch(e=>{$('gw').style.display='block';$('gw').textContent='Error: '+e.message});else if(n>0)setTimeout(()=>w(n-1),300);else{$('gw').style.display='block';$('gw').textContent='Library Plotly/XLSX gagal dimuat dari CDN. Cek koneksi internet / matikan adblock atau VPN, lalu refresh.'}})(50);
+</script></body></html>
